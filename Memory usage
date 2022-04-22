@@ -2,7 +2,7 @@
 
 ###################################################
 # This script is created in order to automate the #
-# memory management in the system.                # 
+# memory management on the system.                # 
 ###################################################
 
 echo "What is the memory threshold level in % ?"
