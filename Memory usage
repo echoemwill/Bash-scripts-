@@ -1,0 +1,28 @@
+#! /bin/bash
+
+###################################################
+# This script is created in order to automate the #
+# memory management in the system.                # 
+###################################################
+
+echo "What is the memory threshold level in % ?"
+read number 
+
+mem_usage=$(free | awk '/Mem/{print($3/#2)*100}' | cut -d "." -f 1)
+
+    if [[ "$mem_usage" -ge "$number" ]]
+
+        then 
+            touch /var/log/MemProc.log && ps -eo vsz,uid,pid,ruser,args,user,time,etime,comm | sort -r -n -k1 | head -15 > /var/log/MemProc.log
+
+            echo "Memory usage is too high, please find the top 15 consuming processes in file with path /var/log/MemProc.log"
+
+            dmesg -T | grep -i 'out of memory'
+
+        else 
+
+            echo "Memory is currently under the threshold"
+
+    fi
+
+############ End of script ############    
