@@ -1,0 +1,45 @@
+#! /bin/bash 
+
+###################################################################
+# This script is create in order to automate the user creation.   #
+# After creating the user you will be asked do you like to ad him # 
+# to the wheel group, keep in mind that this will gave him admin  #
+# rights over the system ! The "mvr" string is for example of     #
+initials of a organization                                        #
+###################################################################
+
+echo "Type in employee's first name with lowercases"
+read firstname
+echo " "
+echo "Type in employee's surname with lowercases"
+read surname
+echo " "
+echo "Here is the new user's generated name: mvr${firstname:0:2}${surname:4:6}" 
+
+systemusers=$(cat /etc/passwd | awk -F: '{ print $1 }')
+username_generator="mvr${firstname:0:2}${surname:4:6}"
+
+for i in ${systemusers[@]}; do
+   
+    if [[ $username_generator == $i ]]
+        
+        then
+
+            echo "This user already exist in the system!"
+            exit 0
+    fi
+done
+
+            useradd $username_generator
+            echo "Does $username_generator needs admin rights ? Type yes/no"
+            read answer 
+                {
+                    if [[ $answer != "yes" ]]
+                        then 
+                            exit 0
+                        else
+                            usermod -aG wheel $username_generator
+                    fi
+                
+                }
+############################# End of script #############################
