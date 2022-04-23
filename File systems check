@@ -1,0 +1,39 @@
+#! /bin/bash
+################################################################################
+# This script will check all File systems and compare their threshold          #
+# to the threshold level that you will type in the beginning of the script.    #
+# Keep in mind that the script will create a file in /home directory           #
+# and fill it with the output of the utilized file systems (the biggest files) #
+# This activity will take some additional free space on your system.           #
+################################################################################
+
+ > /home/UtilizedFS.log
+
+echo "Choose threshold percentege %"
+
+read num_threshold
+
+array=$(df -h | awk '{ print $6 }' | tail -n +2)
+
+    for i in ${array[@]}
+        do
+
+### will take the current fs utilization ###
+
+currentFsUtil=$(df -h /$i | awk '{ print $5 }' | tail -n +2 | cut -d "%" -f 1)
+
+echo " "
+
+    if [[ currentFsUtil -le num_treshhold ]]
+
+        then
+            echo "filesystem $i is okay and current utilization is $currentFsUtil"
+        else
+            echo "filesystem $i is above the treshhold $currentFsUtil %"
+            echo " " >> /home/UtilizedFS.log 
+            echo "Here are the biggest files in File system $i:" >> /home/UtilizedFS.log
+            cd /$i && find . -xdev -type f -size +1M -exec  ls -lah {} \; 2>/dev/null |sort -nr -k5 | tail -20 >> /home/UtilizedFS.log
+            echo "Please find the biggest files in File system $i here /home/UtilizedFS.log"
+    fi
+done
+##################### End of script #####################
