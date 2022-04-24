@@ -5,7 +5,7 @@
 # After creating the user you will be asked do you like to ad him # 
 # to the wheel group, keep in mind that this will gave him admin  #
 # rights over the system ! The "mvr" string is for example of     #
-initials of a organization                                        #
+# initials of a organization                                      #
 ###################################################################
 
 echo "Type in employee's first name with lowercases"
@@ -31,7 +31,7 @@ for i in ${systemusers[@]}; do
 done
 
             useradd $username_generator
-            echo "Does $username_generator needs admin rights ? Type yes/no"
+            echo "Does $firstname needs admin rights ? Type yes/no"
             read answer 
                 {
                     if [[ $answer != "yes" ]]
@@ -39,7 +39,7 @@ done
                             exit 0
                         else
                             usermod -aG wheel $username_generator
-                    fi
-                
+                            echo "Please be informed that user $username_generator was granted with admin rights!"
+                    fi                
                 }
 ############################# End of script #############################
