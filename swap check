@@ -1,0 +1,25 @@
+#! /bin/bash 
+
+#########################################################
+# This is a basic script for swap usage,                #
+# If the usage is too high and this is a repetable      #
+# issue, you can check the script swap_ex for extending #
+# the swap space on your system. Be careful with it !   #
+#########################################################
+
+echo "########## Swap usage script ##########"
+
+echo "Please type the threshold level ? (%)"
+read number 
+current_usage=$(free | awk '/Swap/{print($3/$2)*100}' | cut -d "." -f 1)
+
+
+if [[ $current_usage -ge $number ]]
+    then
+        echo " "
+        free | awk '/Swap/{print ("Swap usage is over the threshold, current usage is:"),($3/$2)*100,("%")}'   
+        echo -e "After downgrading the utilization you can check script "swap_ex" to extend the swap space.\n"  
+    else 
+        echo -e "\nSwap usage is under the threshold :)\n"
+fi
+
