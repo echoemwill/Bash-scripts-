@@ -1,0 +1,43 @@
+#! /bin/bash 
+
+###############################################################
+# This script is created in order to make the swap extend     #
+# more easyer and faster. If you decide to use it be careful  # 
+# because the procedure includes turning the swap of          #
+# and resizing the logical volume. Keep in mind that          # 
+# the script will go trough all the virtual groups in         #
+# the system so you can choose which Logical volume to extend #
+###############################################################
+
+echo "########## Swap extend script ##########"
+
+vg_names=$(vgs  | awk -F " " '{print $1}' | grep -v VG)   #This is the masive  
+
+echo -e "\nHere are the RedHat standards for properly configured proportions MEMORY/SWAP:\n
+Amount of RAM in the system            Recomended swap space 
+            < 2 GB                    2 times the amount of RAM
+        > 2GB - 8GB                  Equal to the amount of RAM
+        > 8GB - 64GB                        At least 4GB  
+            > 64GB                          At least 4GB\n"
+
+    for vg in ${vg_names[@]} 
+        do 
+
+echo -e "\nIn VG $vg there are $(vgs | grep -i $vg | awk -F " " '{print $7}') free space (GB)\n
+Would you like to extend LV $(lvs | grep -i $vg | awk -F " " '{print $1}') which is laying over VG $vg ? (yes/no)"
+read answer
+
+            if [[ $answer == "yes" ]]
+                then 
+                    swapoff -a 
+                    echo -e "Type in the amount of space that you would like to add to the swap  
+Example:+1G, +2G, +3G etc.\n"
+                    read change                     
+                    lvresize /dev/$(vgs | grep $vg | awk -F " " '{print $1}')/$(lvs | grep $vg | awk -F " " '{print $1}') -L $change  
+                    echo " "
+                    mkswap /dev/$(vgs | grep $vg | awk -F " " '{print $1}')/$(lvs | grep $vg | awk -F " " '{print $1}')  
+                    swapon -a
+                    echo -e "\nThe swap space was increased with $change $(cat /proc/meminfo | grep -i swap)\n"
+                    
+            fi
+    done                              
