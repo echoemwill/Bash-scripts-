@@ -7,7 +7,7 @@
 # This activity will take some additional free space on your system.             #
 # Next step, you will be prompted to answer wether you would like the log files  #
 # to be compressed or not. Before answering remember that this will create new   #
-# file in the same directory which will take additional free space and an inode, #
+# file in the same directory which will take additional free space and inode,    #
 # will be assighned to the file. The old file will be truncated.                 #
 ##################################################################################
  
