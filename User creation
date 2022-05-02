@@ -8,38 +8,32 @@
 # initials of a organization                                      #
 ###################################################################
 
-echo "Type in employee's first name with lowercases"
+echo -e "\nType in employee's first name with lowercases"
 read firstname
-echo " "
-echo "Type in employee's surname with lowercases"
+echo -e "\nType in employee's surname with lowercases"
 read surname
-echo " "
-echo "Here is the new user's generated name: mvr${firstname:0:2}${surname:4:6}" 
+echo -e "\nHere is the new user's generated name: mvr${firstname:0:2}${surname:4:6}\n" 
 
-systemusers=$(cat /etc/passwd | awk -F: '{ print $1 }')
+systemusers=$(cat /etc/passwd | awk -F: '{print $1}')
 username_generator="mvr${firstname:0:2}${surname:4:6}"
 
-for i in ${systemusers[@]}; do
+for user in ${systemusers[@]}; do
    
-    if [[ $username_generator == $i ]]
-        
+    if [[ $username_generator == $user ]]
         then
-
             echo "This user already exist in the system!"
             exit 0
     fi
 done
 
-            useradd $username_generator
-            echo "Does $firstname needs admin rights ? Type yes/no"
-            read answer 
-                {
-                    if [[ $answer != "yes" ]]
-                        then 
-                            exit 0
-                        else
-                            usermod -aG wheel $username_generator
-                            echo "Please be informed that user $username_generator was granted with admin rights!"
-                    fi                
-                }
+useradd $username_generator
+echo "Does $firstname needs admin rights ? Type yes/no"
+read answer 
+            if [[ $answer != "yes" ]]
+                then 
+                    exit 0
+                else
+                    usermod -aG wheel $username_generator
+                    echo "Please be informed that user $username_generator was granted with admin rights!"
+            fi                
 ############################# End of script #############################
