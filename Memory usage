@@ -1,9 +1,12 @@
 #! /bin/bash
 
-###################################################
-# This script is created in order to automate the #
-# memory management on the system.                # 
-###################################################
+######################################################
+# This script is created in order to automate the    #
+# memory management on the system. Keep in mind that #
+# if the memory is exausted, a text file will be     #
+# created under /var/log directory and this will     #
+# take some additional free space.                   #
+######################################################
 
 echo "What is the memory threshold level in % ?"
 read number 
@@ -25,4 +28,4 @@ mem_usage=$(free | awk '/Mem/{print($3/#2)*100}' | cut -d "." -f 1)
 
     fi
 
-############ End of script ############    
+############ End of script ############  
