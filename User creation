@@ -1,11 +1,11 @@
 #! /bin/bash 
 
 ###################################################################
-# This script is create in order to automate the user creation.   #
+# This script is created in order to automate the user creation.  #
 # After creating the user you will be asked do you like to ad him # 
 # to the wheel group, keep in mind that this will gave him admin  #
 # rights over the system ! The "mvr" string is for example of     #
-# initials of a organization                                      #
+# initials of a organization.                                     #
 ###################################################################
 
 echo -e "\nType in employee's first name with lowercases"
