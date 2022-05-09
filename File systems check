@@ -39,7 +39,7 @@ echo " "
         fi
     done
 
-################################ Compressing part ################################
+####################### Compressing part #######################
 
 log_files=$(cat /home/UtilizedFS.log | grep "^-" | grep ".log$" | awk -F " " '{print $9}' | cut -c 2-) 
     for file in ${log_files[@]}
@@ -67,5 +67,4 @@ log_files=$(cat /home/UtilizedFS.log | grep "^-" | grep ".log$" | awk -F " " '{p
                         echo -e "\nOk :)\n"
                     fi
         done  
-
-################################ End of script ################################
+####################### End of script #######################
