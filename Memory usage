@@ -28,4 +28,4 @@ mem_usage=$(free | awk '/Mem/{print($3/#2)*100}' | cut -d "." -f 1)
 
     fi
 
-############ End of script ############  
+####################### End of script #######################  
