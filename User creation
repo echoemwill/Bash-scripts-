@@ -36,4 +36,4 @@ read answer
                     usermod -aG wheel $username_generator
                     echo "Please be informed that user $username_generator was granted with admin rights!"
             fi                
-############################# End of script #############################
+####################### End of script #######################
