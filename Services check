@@ -1,0 +1,49 @@
+#! /bin/bash 
+
+##################################################################################
+# This script is created in order to make a fast check wether a selected group   #
+# of services are active or inactive. For example, if you need 5 services        #
+# to run on your system 24/7 you can just paste the unit names in a text file    #
+# and point the full path of the file with those names.                          #
+##################################################################################
+####################### Variables #######################
+services=$(cat /home/services.txt)
+failed_services=$(systemctl | grep -i failed | awk -F " " '{print $2}')
+
+####################### Check for services in failed state #######################
+        if [[ $failed_services != Empty ]]
+            then 
+                echo -e "The following services currently in failed state: $failed_services\n"
+            else 
+                echo -e "There are no services with failed state.\n"
+        fi
+####################### Check for selected services state #######################
+
+        for service in ${services[@]}
+    
+            do 
+                status_of_service=$(systemctl status $service | sed -n '3p' | awk '{print $2}')
+                
+                    if [[ $status_of_service == "inactive" ]]
+                        then 
+                            echo "Currently $service is inactive, would you like to start it ? yes/no\n"
+                            read answer 
+                                if [[ $answer == "yes" ]]
+                                    then
+                                        systemctl start $service
+                                            if [[ $? == 0 ]]
+                                                then 
+                                                    echo -e "$service was started successfully\n"
+                                                else
+                                                    echo -e "$service could not be started !\n"
+                                            fi
+                                    else
+                                        echo -e "\nOk\n"
+                                            
+                                fi
+                        else 
+                            echo -e "Service $service is currently active (running)\n"                           
+                    fi
+            done 
+     ####################### End of script #######################   
+
