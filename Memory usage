@@ -11,7 +11,7 @@
 echo "What is the memory threshold level in % ?"
 read number 
 
-mem_usage=$(free | awk '/Mem/{print($3/#2)*100}' | cut -d "." -f 1)
+mem_usage=$(free | awk '/Mem/{print($3/$2)*100}' | cut -d "." -f 1)
 
     if [[ "$mem_usage" -ge "$number" ]]
 
