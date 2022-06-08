@@ -1,17 +1,20 @@
 #! /bin/bash
 
-######################################################
-# This script is created in order to automate the    #
-# memory management on the system. Keep in mind that #
-# if the memory is exausted, a text file will be     #
-# created under /var/log directory and this will     #
-# take some additional free space.                   #
-######################################################
+########################################################
+# This script is created in order to automate the      #
+# memory management on the system. Keep in mind that   #
+# if the memory is exausted, a text file will be       #
+# created under /var/log directory and this will       #
+# take some additional free space. Also this script    #
+# will request the kernel to drop as much clean cached #
+# data as possible without any system interuption.     #
+########################################################
 
 echo "What is the memory threshold level in % ?"
 read number 
 
 mem_usage=$(free | awk '/Mem/{print($3/$2)*100}' | cut -d "." -f 1)
+/usr/bin/sync; echo 1 > /proc/sys/vm/drop_caches 
 
     if [[ "$mem_usage" -ge "$number" ]]
 
@@ -27,5 +30,4 @@ mem_usage=$(free | awk '/Mem/{print($3/$2)*100}' | cut -d "." -f 1)
             echo "Memory is currently under the threshold"
 
     fi
-
-####################### End of script #######################  
+###################### End of script ######################
