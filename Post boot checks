@@ -1,0 +1,131 @@
+#! /bin/bash 
+
+##########################################################################
+# This script is created with the idea to make the basic checks after an #
+# unexpected reboot of a system. It's sequenced in a couple of parts     #
+# seperated with # and specified with title of what check is about to be #
+# performed.                                                             #
+##########################################################################
+
+################################ Fast Checks ################################
+
+echo -e "This server is up and running since: `uptime -s`\n"
+sleep 3
+echo -e "Here are some details about the last reboot: `last | grep reboot | head -1 | cut -c 10-`\n"
+sleep 3
+echo -e "Current date and time is: `date`\n"
+sleep 1
+echo -e "Load avarage: `cat /proc/loadavg | awk -F " " '{print $1,$2,$3}'`\n\nCPU usage:`top -bc | head -5 | grep "%Cpu"`"
+sleep 3
+echo -e "\nFree memory: `free -hm | grep -i mem |  awk -F " " '{print $3}'` which is `free | grep Mem | awk '{print ($3/$2)*100" %"}'`"
+sleep 3
+
+systemctl start ntpd 
+offset=$(ntpq -np | grep "^*" | awk -F " " '{print $9}')
+
+################################ If NTP is running but not synced ################################
+
+if [[ -z "$offset" ]]
+    then
+        echo -e "\nCurrently the NTP is not synced to any IP. \n
+Would you like to sync the NTP ? yes/no"
+        read answer
+
+            if [[ $answer == "yes" ]]
+            then 
+                echo -e "\nHere are the available peers:"
+                ntpq -np | awk -F " " '{print $1}' | tail -n +3 | cut -c 2- 
+                systemctl stop ntpd 
+                sleep 3
+                echo -e "\nChoose to which peer would you like to syncronize. Paste the IP, hit Enter and wait a few secounds.\n"
+                read peer 
+                ntpdate -q $peer
+                systemctl start ntpd 
+            else 
+                echo -e "Ok :)"
+        fi
+else
+
+################################ If the NTP is running and synced but with big offset ################################
+
+echo -e "\nThe current ntp offset is: $offset miliseconds. Would you like to syncronize the ntp ? yes/no\n"
+    read answer 
+
+        if [[ $answer == "yes" ]]
+            then 
+                echo -e "\nHere are the available peers:"
+                ntpq -np | awk -F " " '{print $1}' | tail -n +3 | cut -c 2- 
+                systemctl stop ntpd 
+                sleep 3
+                echo -e "\nChoose to which peer would you like to syncronize. Paste the IP, hit Enter and wait a few secounds.\n"
+                read peer 
+                ntpdate -q $peer
+                systemctl start ntpd 
+            else 
+                echo -e "Ok. Mooving on :)"
+        fi
+fi
+
+################################# Zombie processes check #################################
+sleep 2
+zombie=$(top -bc | head -5 | sed -n '2,2p' > /home/MyScripts/zombies && cat /home/MyScripts/zombies | cut -d " " -f 15,16,17)
+
+    if [[ $zombie = " 0 zombie" ]]
+        then
+            echo -e "\nThere are no zombie processes"
+        else 
+            echo -e "\nThere are one or more zombie processes!"
+    fi 
+
+################################# Read only file system checks #################################
+sleep 3
+readonlyfs=$(grep -i "ro," /proc/mounts)
+
+    if [[ -z $readonlyfs ]]
+        then 
+            echo -e "\nThere are no read only file systems"
+        else 
+            echo -e "\nRead only file systems: $readonlyfs"
+    fi
+
+################################# Mounted FS's check #################################
+sleep 3
+filesystem_from_fstab=$(cat /etc/fstab | grep -v "^#" |awk -F " " '{print $2}')
+filesystem_from_df=$(df -h | awk '{ print $6 }' | tail -n +2)
+
+echo -e "\nAccourding to fstab, the following file systems should be monted: $filesystem_from_fstab"
+sleep 3
+echo -e "\nAnd here are the mounted ones:"
+
+for fs in ${filesystem_from_fstab[@]};do 
+
+    for fs2 in ${filesystem_from_df[@]};do 
+
+        if [[ $fs == $fs2 ]];
+            then 
+                echo "FS $fs is mounted"
+        fi   
+
+        
+    done
+done 
+
+################################# Database status check #################################
+sleep 3
+MariaDB=$(systemctl status mariadb | grep "Active" | awk '{print $2}')
+
+if [[ $MariaDB == "active" ]]
+    then
+        echo -e "\nDatabase is active"
+    else 
+        echo -e "\nCurrently database is inactive, would you like to start it ? yes/no"
+            read answer 
+                if [[ $answer == "yes" ]]
+                    then
+                        systemctl start mariadb 
+                        sleep 1
+                        echo -e "\nDatabase is now: `systemctl status mariadb | grep "Active" | awk '{print $2}'`"
+                    else 
+                        echo -e "\nOk :)"
+                fi 
+fi
