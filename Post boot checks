@@ -104,9 +104,7 @@ for fs in ${filesystem_from_fstab[@]};do
         if [[ $fs == $fs2 ]];
             then 
                 echo "FS $fs is mounted"
-        fi   
-
-        
+        fi         
     done
 done 
 
