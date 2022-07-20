@@ -1,0 +1,89 @@
+#! /bin/bash 
+
+##############################################################################
+# This security script is created in order to make te user management more   #
+# easier, and also to summarize which users performed an failed login        # 
+# attempt, how much failed login attempts and when. Keep in mind that        #
+# this script is extracting information from the current /var/log/secure     #
+# file. Usually there are a couple more /var/log/secure files but compressed,# 
+# if you need more information from those logs you should look at them.      #
+##############################################################################
+
+users=$(cat /etc/passwd | grep "mvr" | cut -d ':' -f -1)
+date1=$(grep mvremev /var/log/secure | grep "password check failed for user" | head -1 | awk '{print $1,$2,$3}')
+date2=$(grep mvremev /var/log/secure | grep "password check failed for user" | tail -1 | awk '{print $1,$2,$3}')
+>/var/log/AuthenticationFailures.log
+
+echo -e "\n######################## Users with failed login attempts ########################"
+
+for user in ${users[@]}
+    do  
+    grep $user /var/log/secure | grep "password check failed for user" >> /var/log/AuthenticationFailures.log   
+
+    if [[ $? -eq 0 ]]
+        then 
+
+    sleep 1
+
+    echo -e "\nUser $user has `grep $user /var/log/AuthenticationFailures.log | wc -l` login fail attempts 
+for the following time frame: $date1 - $date2\n"    
+
+    sleep 1
+
+    echo -e "Would you like to get more information about account status ? y/n\n"
+    read answer 
+
+        if [[ $answer == "y" ]]            
+            then 
+    pam_tally2 --user=$user
+                
+{
+    sleep 1
+
+    echo -e "\nWould you like to lock this account ? y/n\n"
+    read lock 
+                        
+                    if [[ $lock == "y" ]]
+                        then 
+    passwd -l $user 
+                    fi 
+
+    sleep 1
+
+    echo -e "\nWould you like to reset the failed logins of this user ? y/n\n"
+    read logins 
+
+                    if [[ $logins == "y" ]] 
+                        then 
+    pam_tally2 -r -u $user
+                    fi        
+
+    sleep 1
+
+    echo -e "\nWould you like to change this users password ? y/n\n"
+    read change 
+
+                    if [[ $change == "y" ]]
+                        then 
+    passwd $user
+                    fi 
+
+    sleep 1
+
+    echo -e "\nWould you like this user to be prompted to change his password next time when he logs in ? y/n\n"
+    read next 
+
+                    if [[ $next == "y" ]]
+                        then 
+    passwd -e $user 
+                    fi 
+}    
+
+        fi
+    echo -e "\n###################################################"
+    fi 
+done            
+    echo -e "################# Thats All folks #################" 
+            
+
+
